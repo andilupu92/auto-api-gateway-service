@@ -1,0 +1,21 @@
+spring:
+  cloud:
+    consul:
+      enabled: true
+      host: ${CONSUL_HOST}
+      port: ${CONSUL_PORT:8500}
+      discovery:
+        enabled: true
+        register: true
+        prefer-ip-address: true
+        hostname: auto-api-gateway-service
+        instance-id: ${spring.application.name}:${random.value}
+        health-check-path: /actuator/health
+        health-check-interval: 10s
+        health-check-critical-timeout: 30s
+        service-name: ${spring.application.name}
+
+logging:
+  level:
+    org.springframework.cloud.consul: DEBUG
+    org.springframework.cloud.gateway: DEBUG
