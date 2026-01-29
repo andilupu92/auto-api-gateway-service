@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: auto-api-gateway-service
 
@@ -9,10 +11,92 @@ spring:
     gateway:
       server:
         webflux:
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:5173"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - PATCH
+                allowedHeaders: "*"
+                exposedHeaders:
+                  - Authorization
+                allowCredentials: true
           discovery:
             locator:
               enabled: true
               lower-case-service-id: true
+          routes:
+            - id: auto-auth-service-route
+              uri: lb://auto-auth-service
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: auto-auth-service-circuitbreaker
+                    fallbackUri: /fallback/auto-auth-service-fallback
+            - id: auto-car-service-route
+              uri: lb://auto-car-service
+              predicates:
+                - Path=/car/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: auto-car-service-circuitbreaker
+                    fallbackUri: /fallback/auto-car-service-fallback
+            - id: auto-document-service-route
+              uri: lb://auto-document-service
+              predicates:
+                - Path=/document/**
+              filters:
+                - StripPrefix=1
+                - name: CircuitBreaker
+                  args:
+                    name: auto-document-service-circuitbreaker
+                    fallbackUri: /fallback/auto-document-service-fallback
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      auto-auth-service-circuitbreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 50
+      auto-car-service-circuitbreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 50
+      auto-document-service-circuitbreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        minimumNumberOfCalls: 5
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 50
+  timelimiter:
+    instances:
+      auto-auth-service-circuitbreaker:
+        timeoutDuration: 3s
+      auto-car-service-circuitbreaker:
+        timeoutDuration: 3s
+      auto-document-service-circuitbreaker:
+        timeoutDuration: 3s
 
 management:
   endpoints:
