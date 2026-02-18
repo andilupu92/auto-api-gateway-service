@@ -33,8 +33,13 @@ public class JwtUtil {
         return getVerifier().verify(token);
     }
 
+    public String extractUserId(DecodedJWT decodedJWT) {
+        Claim userIdClaim = decodedJWT.getClaim("userId");
+        return String.valueOf(userIdClaim.asLong());
+    }
+
     public List<String> extractRoles(DecodedJWT decodedJWT) {
-        Claim rolesClaim = decodedJWT.getClaim("roles");
+        Claim rolesClaim = decodedJWT.getClaim("role");
         if (rolesClaim.isNull()) {
             return List.of();
         }
