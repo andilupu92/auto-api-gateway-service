@@ -31,16 +31,14 @@ public class UserHeadersFilter implements GlobalFilter, Ordered {
                     String userId = jwtUtil.extractUserId(decoded);
                     String username = authentication.getName(); // = subject from token
                     String roles = String.join(",", jwtUtil.extractRoles(decoded));
-                    System.out.println(userId);
                     // Mutate the request — add custom headers for downstream services
                     ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                             .header("X-User-Id", userId)
                             .header("X-User-Name", username)
                             .header("X-User-Roles", roles)
-                            // Optional: remove raw JWT so downstream services don't re-validate
+                            // remove raw JWT so downstream services don't re-validate
                             // .headers(headers -> headers.remove(AUTHORIZATION_HEADER))
                             .build();
-                    System.out.println(mutatedRequest);
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());
                 })
                 // If no principal (unauthenticated/public route), just continue normally

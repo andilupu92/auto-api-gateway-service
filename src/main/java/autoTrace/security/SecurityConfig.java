@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .authenticationManager(authenticationManager)
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
+                        .pathMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/refresh").permitAll()
                         .pathMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
                         .anyExchange().authenticated()

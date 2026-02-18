@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
@@ -34,7 +33,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
                     List<SimpleGrantedAuthority> authorities = jwtUtil.extractRoles(decodedJWT)
                             .stream()
                             .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return (Authentication) new UsernamePasswordAuthenticationToken(
                             username, token, authorities
